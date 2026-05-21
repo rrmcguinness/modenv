@@ -49,7 +49,7 @@ jobs:
           # Output is placed at bazel-out/_coverage/_coverage_report.dat
 
       - name: Generate Coverage Badge
-        uses: GoogleCloudPlatform/lcov-coverage-badge@v1.1.0
+        uses: GoogleCloudPlatform/lcov-coverage-badge@v1.0.0
         with:
           file: bazel-out/_coverage/_coverage_report.dat
 
