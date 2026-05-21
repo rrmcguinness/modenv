@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - 'coverage.svg'
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - 'coverage.svg'
+
+jobs:
+  build-and-test:
+    name: Build, Test, and Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Install Bazelisk
+        uses: bazelbuild/setup-bazelisk@v3
+
+      - name: Cache Bazel Repository Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+          key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel', '**/BUILD.bazel') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-
+
+      - name: Run Standard Go Tests
+        run: make test
+
+      - name: Bazel Build All Targets
+        run: bazel build //...
+
+      - name: Bazel Test and Generate Coverage
+        run: |
+          bazel coverage --combined_report=lcov //...
+          # Output is placed at bazel-out/_coverage/_coverage_report.dat
+
+      - name: Generate Coverage Badge
+        uses: GoogleCloudPlatform/lcov-coverage-badge@v1
+        with:
+          file: bazel-out/_coverage/_coverage_report.dat
+
+      - name: Upload Coverage Reports
+        uses: codecov/codecov-action@v4
+        with:
+          files: bazel-out/_coverage/_coverage_report.dat
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

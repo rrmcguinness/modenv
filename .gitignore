@@ -1,0 +1,21 @@
+# Binaries
+/bin/
+
+# Local configuration overrides
+*.local.toml
+
+# Allow local override configs within the test suite fixtures
+!test/configs/**/*.local.toml
+
+# Bazel artifacts
+/bazel-*
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*~
